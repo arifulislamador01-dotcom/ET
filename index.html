@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ET - Smart Learning Platform | Faridpur Polytechnic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #a855f7;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+
+        html.dark {
+            --primary: #0284c7;
+            --secondary: #9333ea;
+            --dark: #111827;
+            --light: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: #1f2937;
+        }
+
+        html.dark body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f3f4f6;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        html.dark .glass {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #a855f7 100%);
+        }
+
+        .gradient-secondary {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        html.dark .card {
+            background: #1f2937;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(14, 165, 233, 0.1);
+            color: #0ea5e9;
+            border-left-color: #0ea5e9;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        html.dark .progress-bar {
+            background: #374151;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #0ea5e9, #a855f7);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 20px;
+        }
+
+        html.dark .section-title {
+            color: #f3f4f6;
+        }
+
+        .subject-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #a855f7);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #0ea5e9;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        html.dark .modal-content {
+            background: #1f2937;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ============ STATE MANAGEMENT ============
+        const app = {
+            currentUser: null,
+            isDark: localStorage.getItem('darkMode') === 'true',
+            currentPage: 'dashboard',
+            users: {},
+            subjects: {},
+            messages: [],
+            
+            init() {
+                this.loadData();
+                this.setupEventListeners();
+                this.checkAuth();
+                this.render();
+            },
+
+            loadData() {
+                // Student data - MD ARIFUL ISLAM (Roll: 747228)
+                this.currentUser = {
+                    id: '747228',
+                    name: 'MD ARIFUL ISLAM',
+                    roll: '747228',
+                    registration: '15022711 56/2223',
+                    email: 'ariful.islam@poly.edu.bd',
+                    phone: '01765432890',
+                    semester: 7,
+                    shift: 1,
+                    gpa: -3.13,
+                    profilePhoto: 'https://i.pravatar.cc/200?img=15',
+                    role: 'student',
+                    batch: '2021-2025',
+                    department: 'Electrical Technology (67)'
+                };
+
+                // Subjects for 7th Semester
+                this.subjects = {
+                    '25831': {
+                        code: '25831',
+                        name: 'Business Communication',
+                        teacher: 'Sohel Molla',
+                        credit: 2,
+                        marks: 75,
+                        quizMarks: [65, 72, 70],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 85,
+                        midSyllabusProgress: 65,
+                        totalMarks: 100
+                    },
+                    '25853': {
+                        code: '25853',
+                        name: 'Innovation & Entrepreneurship',
+                        teacher: 'Nafida Akter',
+                        credit: 2,
+                        marks: 82,
+                        quizMarks: [78, 85, 80],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 90,
+                        midSyllabusProgress: 80,
+                        totalMarks: 100
+                    },
+                    '26771': {
+                        code: '26771',
+                        name: 'AC Machine-II',
+                        teacher: 'Md. Monirul Hosen',
+                        credit: 3,
+                        marks: 88,
+                        quizMarks: [85, 90, 88],
+                        assignmentStatus: 'Pending',
+                        attendancePercentage: 92,
+                        midSyllabusProgress: 75,
+                        totalMarks: 100
+                    },
+                    '26772': {
+                        code: '26772',
+                        name: 'T & D of Electrical Power-II',
+                        teacher: 'Tawhida Rahman',
+                        credit: 3,
+                        marks: 79,
+                        quizMarks: [75, 80, 82],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 88,
+                        midSyllabusProgress: 70,
+                        totalMarks: 100
+                    },
+                    '26773': {
+                        code: '26773',
+                        name: 'Switch Gear and Protection',
+                        teacher: 'Rasihul Islam',
+                        credit: 3,
+                        marks: 85,
+                        quizMarks: [82, 87, 85],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 87,
+                        midSyllabusProgress: 72,
+                        totalMarks: 100
+                    },
+                    '26774': {
+                        code: '26774',
+                        name: 'Electrical Project-III',
+                        teacher: 'Razzak Karim',
+                        credit: 6,
+                        marks: 91,
+                        quizMarks: [90, 92, 91],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 95,
+                        midSyllabusProgress: 85,
+                        totalMarks: 100
+                    },
+                    '26875': {
+                        code: '26875',
+                        name: 'Automation & PLC',
+                        teacher: 'Tawhidur Rahma',
+                        credit: 3,
+                        marks: 86,
+                        quizMarks: [84, 88, 86],
+                        assignmentStatus: 'Submitted',
+                        attendancePercentage: 91,
+                        midSyllabusProgress: 78,
+                        totalMarks: 100
+                    }
+                };
+
+                // Class routine
+                this.routine = {
+                    monday: [
+                        { time: '8:00-8:45', subject: '25831', room: '301', teacher: 'Sohel' },
+                        { time: '8:45-9:30', subject: '25853', room: '302', teacher: 'Nafida' },
+                        { time: '9:30-10:15', subject: '26771', room: '103', teacher: 'Md. Monirul' },
+                        { time: '10:15-11:00', subject: '26772', room: '304', teacher: 'Tawhida' }
+                    ],
+                    // ... other days would follow similar pattern
+                };
+
+                // Teachers list
+                this.teachers = [
+                    { id: 1, name: 'Sohel Molla', subject: 'Business Communication', phone: '01712345678', whatsapp: '01712345678' },
+                    { id: 2, name: 'Nafida Akter', subject: 'Innovation & Entrepreneurship', phone: '01798765432', whatsapp: '01798765432' },
+                    { id: 3, name: 'Md. Monirul Hosen', subject: 'AC Machine-II', phone: '01654321987', whatsapp: '01654321987' },
+                    { id: 4, name: 'Tawhida Rahman', subject: 'T & D of Electrical Power-II', phone: '01876543210', whatsapp: '01876543210' },
+                    { id: 5, name: 'Rasihul Islam', subject: 'Switch Gear and Protection', phone: '01712541893', whatsapp: '01712541893' },
+                    { id: 6, name: 'Razzak Karim', subject: 'Electrical Project-III', phone: '01945678321', whatsapp: '01945678321' },
+                    { id: 7, name: 'Tawhidur Rahma', subject: 'Automation & PLC', phone: '01812345679', whatsapp: '01812345679' }
+                ];
+            },
+
+            setupEventListeners() {
+                document.addEventListener('click', (e) => {
+                    // Navigation
+                    if (e.target.closest('[data-nav]')) {
+                        const nav = e.target.closest('[data-nav]').dataset.nav;
+                        this.currentPage = nav;
+                        this.render();
+                    }
+
+                    // Dark mode toggle
+                    if (e.target.closest('[data-toggle-dark]')) {
+                        this.isDark = !this.isDark;
+                        localStorage.setItem('darkMode', this.isDark);
+                        this.applyTheme();
+                        this.render();
+                    }
+
+                    // Logout
+                    if (e.target.closest('[data-logout]')) {
+                        this.logout();
+                    }
+
+                    // Login
+                    if (e.target.closest('[data-login]')) {
+                        e.preventDefault();
+                        const roll = document.querySelector('input[name="roll"]')?.value;
+                        const registration = document.querySelector('input[name="registration"]')?.value;
+                        
+                        if (roll === '747228' && registration === '15022711 56/2223') {
+                            localStorage.setItem('authToken', 'token_' + Date.now());
+                            this.render();
+                        } else {
+                            alert('Invalid credentials!');
+                        }
+                    }
+
+                    // Quiz answer selection
+                    if (e.target.closest('.quiz-option')) {
+                        document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                        e.target.closest('.quiz-option').classList.add('selected');
+                    }
+                });
+
+                // Handle theme on page load
+                this.applyTheme();
+            },
+
+            checkAuth() {
+                const token = localStorage.getItem('authToken');
+                if (!token && this.currentPage !== 'login') {
+                    this.currentPage = 'login';
+                }
+            },
+
+            logout() {
+                localStorage.removeItem('authToken');
+                this.currentPage = 'login';
+                this.render();
+            },
+
+            applyTheme() {
+                if (this.isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            },
+
+            getGreeting() {
+                const hour = new Date().getHours();
+                if (hour < 12) return 'সকালের আসালামু আলাইকুম';
+                if (hour < 17) return 'দুপুরের আসালামু আলাইকুম';
+                return 'সন্ধ্যার আসালামু আলাইকুম';
+            },
+
+            getCurrentClass() {
+                const now = new Date();
+                const day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][now.getDay()];
+                const hour = now.getHours();
+                const minute = now.getMinutes();
+                const currentTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+                // This is a demo - in real app would have actual routine logic
+                return {
+                    subject: 'Electrical Project-III',
+                    room: '103',
+                    teacher: 'Razzak Karim',
+                    startTime: '10:15',
+                    endTime: '11:00'
+                };
+            },
+
+            render() {
+                const app = document.getElementById('app');
+                const isAuth = localStorage.getItem('authToken');
+
+                if (!isAuth) {
+                    app.innerHTML = this.renderLoginPage();
+                } else if (this.currentPage === 'dashboard') {
+                    app.innerHTML = this.renderDashboard();
+                } else if (this.currentPage === 'subjects') {
+                    app.innerHTML = this.renderSubjects();
+                } else if (this.currentPage === 'quiz') {
+                    app.innerHTML = this.renderQuiz();
+                } else if (this.currentPage === 'chat') {
+                    app.innerHTML = this.renderChat();
+                } else if (this.currentPage === 'resources') {
+                    app.innerHTML = this.renderResources();
+                } else if (this.currentPage === 'teachers') {
+                    app.innerHTML = this.renderTeachers();
+                } else if (this.currentPage === 'profile') {
+                    app.innerHTML = this.renderProfile();
+                } else {
+                    app.innerHTML = this.renderDashboard();
+                }
+
+                this.applyTheme();
+            },
+
+            renderLoginPage() {
+                return `
+                    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+                        <div class="w-full max-w-md">
+                            <div class="glass rounded-2xl p-8 shadow-2xl">
+                                <div class="text-center mb-8">
+                                    <div class="inline-block p-4 bg-gradient-primary rounded-full mb-4">
+                                        <i class="fas fa-bolt text-white text-3xl"></i>
+                                    </div>
+                                    <h1 class="text-3xl font-bold text-white mb-2">ET Platform</h1>
+                                    <p class="text-blue-200">Smart Learning for Future Engineers</p>
+                                </div>
+
+                                <form class="space-y-4" onsubmit="return false;">
+                                    <div>
+                                        <label class="block text-sm font-medium text-white mb-2">বোর্ড রোল / Board Roll</label>
+                                        <input type="text" name="roll" placeholder="747228" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-white mb-2">রেজিস্ট্রেশন নম্বর / Registration</label>
+                                        <input type="text" name="registration" placeholder="15022711 56/2223" class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-white mb-2">সেমিস্টার / Semester</label>
+                                        <select class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                            <option value="7">7th Semester</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="button" data-login class="w-full btn btn-primary gradient-primary py-3 rounded-lg font-semibold mt-6 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                                        <i class="fas fa-sign-in-alt"></i> লগইন করুন / Login
+                                    </button>
+                                </form>
+
+                                <div class="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                                    <p class="text-xs text-blue-200">
+                                        <strong>Demo Credentials:</strong><br>
+                                        Roll: 747228<br>
+                                        Registration: 15022711 56/2223
+                                    </p>
+                                </div>
+
+                                <div class="mt-6 text-center">
+                                    <p class="text-blue-200 text-sm">Faridpur Polytechnic Institute</p>
+                                    <p class="text-blue-300 text-xs mt-1">Electrical Technology Department</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderDashboard() {
+                const currentClass = this.getCurrentClass();
+                const greeting = this.getGreeting();
+                const now = new Date();
+
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-7xl mx-auto">
+                                    <!-- Greeting Section -->
+                                    <div class="mb-8 fade-in">
+                                        <div class="card p-8 gradient-primary text-white rounded-2xl">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <h2 class="text-3xl font-bold mb-2">${greeting}</h2>
+                                                    <p class="text-blue-100 text-lg">স্বাগতম, ${this.currentUser.name}!</p>
+                                                    <p class="text-blue-100 mt-2">শিক্ষার্থী ID: ${this.currentUser.roll} | সেমিস্টার: ৭</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-5xl font-bold text-blue-200">${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}</div>
+                                                    <div class="text-blue-100">${now.toLocaleDateString('bn-BD', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quick Stats -->
+                                    <div class="grid-4 mb-8">
+                                        <div class="card p-6 hover:shadow-lg">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">সম্পূর্ণ বিষয়</span>
+                                                <i class="fas fa-book text-blue-500 text-xl"></i>
+                                            </div>
+                                            <div class="text-3xl font-bold">7</div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">এই সেমিস্টারে</p>
+                                        </div>
+
+                                        <div class="card p-6 hover:shadow-lg">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">গড় GPA</span>
+                                                <i class="fas fa-chart-line text-green-500 text-xl"></i>
+                                            </div>
+                                            <div class="text-3xl font-bold">3.13</div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">পূর্ববর্তী সেমিস্টার</p>
+                                        </div>
+
+                                        <div class="card p-6 hover:shadow-lg">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">উপস্থিতি</span>
+                                                <i class="fas fa-check-circle text-yellow-500 text-xl"></i>
+                                            </div>
+                                            <div class="text-3xl font-bold">90%</div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">এই সেমিস্টারে</p>
+                                        </div>
+
+                                        <div class="card p-6 hover:shadow-lg">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <span class="text-sm text-gray-600 dark:text-gray-400">কোর্স প্রগতি</span>
+                                                <i class="fas fa-graduation-cap text-purple-500 text-xl"></i>
+                                            </div>
+                                            <div class="text-3xl font-bold">75%</div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">সম্পূর্ণ হয়েছে</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Current Class -->
+                                    <div class="grid-2 mb-8">
+                                        <div class="card p-6 subject-card">
+                                            <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">বর্তমান ক্লাস</h3>
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">বিষয়</p>
+                                                    <p class="text-lg font-bold text-gray-800 dark:text-white">${currentClass.subject}</p>
+                                                </div>
+                                                <div class="flex gap-4">
+                                                    <div>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">শিক্ষক</p>
+                                                        <p class="font-semibold text-gray-800 dark:text-white">${currentClass.teacher}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">রুম</p>
+                                                        <p class="font-semibold text-gray-800 dark:text-white">${currentClass.room}</p>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">সময়</p>
+                                                    <p class="font-semibold text-gray-800 dark:text-white">${currentClass.startTime} - ${currentClass.endTime}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card p-6">
+                                            <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">দৈনিক দোয়া</h3>
+                                            <div class="space-y-3">
+                                                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                    <p class="text-sm text-gray-700 dark:text-gray-300 italic mb-2">
+                                                        "রাব্বি ইদনি ইলমা ওয়া রিযকা ওয়া আফিয়া"
+                                                    </p>
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                        "হে আমার রব, আমাকে জ্ঞান, রিযক এবং সুস্বাস্থ্য দান করুন"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Recent Subjects -->
+                                    <div class="mb-8">
+                                        <h3 class="section-title">এই সপ্তাহের বিষয় সমূহ</h3>
+                                        <div class="grid-3">
+                                            ${Object.values(this.subjects).slice(0, 3).map(subject => `
+                                                <div class="card p-6 subject-card hover:shadow-lg hover:scale-105 transition-transform">
+                                                    <div class="flex justify-between items-start mb-3">
+                                                        <div>
+                                                            <p class="text-xs text-blue-600 dark:text-blue-400 font-semibold">${subject.code}</p>
+                                                            <h4 class="font-bold text-gray-800 dark:text-white">${subject.name}</h4>
+                                                        </div>
+                                                        <span class="text-2xl text-purple-500">✓</span>
+                                                    </div>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">শিক্ষক: ${subject.teacher}</p>
+                                                    <div class="mb-3">
+                                                        <div class="flex justify-between items-center mb-1">
+                                                            <span class="text-xs text-gray-600 dark:text-gray-400">অগ্রগতি</span>
+                                                            <span class="text-xs font-bold text-gray-800 dark:text-white">${subject.midSyllabusProgress}%</span>
+                                                        </div>
+                                                        <div class="progress-bar">
+                                                            <div class="progress-fill" style="width: ${subject.midSyllabusProgress}%"></div>
+                                                        </div>
+                                                    </div>
+                                                    <button data-nav="subjects" class="btn btn-primary text-sm w-full hover:shadow-lg">আরও দেখুন</button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                        <p class="text-sm">Electrical Technology, 7th Semester | Faridpur Polytechnic Institute</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderSubjects() {
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-7xl mx-auto">
+                                    <h2 class="section-title">সকল বিষয় - ৭ম সেমিস্টার</h2>
+
+                                    <div class="grid-2">
+                                        ${Object.values(this.subjects).map(subject => `
+                                            <div class="card p-6 subject-card">
+                                                <div class="mb-4">
+                                                    <div class="flex justify-between items-start mb-2">
+                                                        <div>
+                                                            <p class="text-sm text-blue-600 dark:text-blue-400 font-semibold">${subject.code}</p>
+                                                            <h3 class="font-bold text-gray-800 dark:text-white text-lg">${subject.name}</h3>
+                                                        </div>
+                                                        <span class="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs font-semibold">সক্রিয়</span>
+                                                    </div>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400">শিক্ষক: ${subject.teacher}</p>
+                                                </div>
+
+                                                <div class="space-y-4">
+                                                    <!-- Quiz Marks -->
+                                                    <div>
+                                                        <div class="flex justify-between mb-2">
+                                                            <span class="text-sm font-semibold text-gray-800 dark:text-white">কুইজ নম্বর</span>
+                                                            <span class="text-sm text-gray-600 dark:text-gray-400">${subject.quizMarks.reduce((a,b)=>a+b)/subject.quizMarks.length}/25</span>
+                                                        </div>
+                                                        <div class="progress-bar">
+                                                            <div class="progress-fill" style="width: ${(subject.quizMarks.reduce((a,b)=>a+b)/subject.quizMarks.length)/25*100}%"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Attendance -->
+                                                    <div>
+                                                        <div class="flex justify-between mb-2">
+                                                            <span class="text-sm font-semibold text-gray-800 dark:text-white">উপস্থিতি</span>
+                                                            <span class="text-sm text-gray-600 dark:text-gray-400">${subject.attendancePercentage}%</span>
+                                                        </div>
+                                                        <div class="progress-bar">
+                                                            <div class="progress-fill" style="width: ${subject.attendancePercentage}%"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Progress -->
+                                                    <div>
+                                                        <div class="flex justify-between mb-2">
+                                                            <span class="text-sm font-semibold text-gray-800 dark:text-white">পাঠ্যক্রম অগ্রগতি</span>
+                                                            <span class="text-sm text-gray-600 dark:text-gray-400">${subject.midSyllabusProgress}%</span>
+                                                        </div>
+                                                        <div class="progress-bar">
+                                                            <div class="progress-fill" style="width: ${subject.midSyllabusProgress}%"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Assignment Status -->
+                                                    <div class="flex items-center gap-2 p-3 rounded-lg" style="background: ${subject.assignmentStatus === 'Submitted' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'}">
+                                                        <i class="fas fa-${subject.assignmentStatus === 'Submitted' ? 'check-circle text-green-600' : 'hourglass-end text-yellow-600'}"></i>
+                                                        <span class="text-sm font-semibold">${subject.assignmentStatus === 'Submitted' ? 'অ্যাসাইনমেন্ট জমা দেওয়া হয়েছে' : 'অ্যাসাইনমেন্ট অপেক্ষমান'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderQuiz() {
+                const quizQuestions = [
+                    {
+                        id: 1,
+                        question: "তিন ফেজ ইন্ডাকশন মোটরের দ্রুত ঘূর্ণন গতি কত?",
+                        options: [
+                            "সিঙ্ক্রোনাস গতি",
+                            "সিঙ্ক্রোনাস গতির চেয়ে কম",
+                            "সিঙ্ক্রোনাস গতির চেয়ে বেশি",
+                            "শূন্য"
+                        ],
+                        correct: 1
+                    },
+                    {
+                        id: 2,
+                        question: "ট্রান্সফর্মারের প্রাথমিক এবং দ্বিতীয় কুণ্ডলীর মধ্যে শক্তি স্থানান্তর হয় কিভাবে?",
+                        options: [
+                            "পরিবহন তার মাধ্যমে",
+                            "চৌম্বক ক্ষেত্রের মাধ্যমে",
+                            "যান্ত্রিক যোগাযোগের মাধ্যমে",
+                            "রেডিয়েশনের মাধ্যমে"
+                        ],
+                        correct: 1
+                    },
+                    {
+                        id: 3,
+                        question: "প্রটেকশন সিস্টেমে আর্থিং কেন ব্যবহার করা হয়?",
+                        options: [
+                            "খরচ কমাতে",
+                            "ক্ষতিকারক স্ট্র্যাঁ ভোল্টেজ প্রবাহকে পৃথিবীতে প্রবাহিত করতে",
+                            "নয়েজ বৃদ্ধি করতে",
+                            "দক্ষতা কমাতে"
+                        ],
+                        correct: 1
+                    }
+                ];
+
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-4xl mx-auto">
+                                    <h2 class="section-title">প্রতিযোগিতামূলক কুইজ</h2>
+
+                                    <div class="grid-2 mb-8">
+                                        <div class="card p-6">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-gray-600 dark:text-gray-400">আপনার স্কোর</span>
+                                                <i class="fas fa-trophy text-yellow-500 text-2xl"></i>
+                                            </div>
+                                            <p class="text-4xl font-bold text-gray-800 dark:text-white">850</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">মোট স্কোর</p>
+                                        </div>
+
+                                        <div class="card p-6">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-gray-600 dark:text-gray-400">র‍্যাঙ্কিং</span>
+                                                <i class="fas fa-medal text-orange-500 text-2xl"></i>
+                                            </div>
+                                            <p class="text-4xl font-bold text-gray-800 dark:text-white">12th</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">সেমিস্টার র‍্যাঙ্কিংয়ে</p>
+                                        </div>
+                                    </div>
+
+                                    <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">আজকের চ্যালেঞ্জ</h3>
+
+                                    <div class="space-y-6">
+                                        ${quizQuestions.map((q, idx) => `
+                                            <div class="card p-6">
+                                                <div class="flex items-center gap-3 mb-4">
+                                                    <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">${idx + 1}</span>
+                                                    <p class="font-semibold text-gray-800 dark:text-white flex-1">${q.question}</p>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    ${q.options.map((option, optIdx) => `
+                                                        <div class="quiz-option p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer hover:border-blue-400 transition-all" data-option="${optIdx}">
+                                                            <p class="text-gray-800 dark:text-white">${option}</p>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+
+                                    <button class="btn btn-primary gradient-primary py-3 rounded-lg font-semibold mt-8 w-full">সংমিত করুন</button>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderChat() {
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-5xl mx-auto">
+                                    <h2 class="section-title">শিক্ষক - শিক্ষার্থী চ্যাট</h2>
+
+                                    <div class="grid-2 gap-6" style="grid-template-columns: 300px 1fr; align-items: start;">
+                                        <!-- Teachers List -->
+                                        <div class="card p-4 h-fit">
+                                            <h3 class="font-bold mb-4 text-gray-800 dark:text-white">সম্প্রতি যোগাযোগ করেছেন</h3>
+                                            <div class="space-y-2">
+                                                ${this.teachers.slice(0, 5).map(teacher => `
+                                                    <div class="p-3 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/20 cursor-pointer transition-colors border-l-4 border-blue-500">
+                                                        <p class="font-semibold text-sm text-gray-800 dark:text-white">${teacher.name}</p>
+                                                        <p class="text-xs text-gray-600 dark:text-gray-400">${teacher.subject}</p>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+
+                                        <!-- Chat Area -->
+                                        <div class="card p-6 flex flex-col" style="height: 500px;">
+                                            <h3 class="font-bold mb-4 text-gray-800 dark:text-white">MD ARIFUL ISLAM - Sohel Molla</h3>
+                                            <div class="flex-1 overflow-y-auto mb-4 space-y-3">
+                                                <div class="flex gap-2">
+                                                    <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg max-w-xs">
+                                                        <p class="text-sm text-gray-800 dark:text-white">ভালো সকাল স্যার, আজকের ক্লাসের বিষয়ে কোনো প্রশ্ন আছে।</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex justify-end gap-2">
+                                                    <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg max-w-xs">
+                                                        <p class="text-sm text-gray-800 dark:text-white">হ্যালো আরিফুল! হ্যাঁ, আজকের ক্লাসে AC মোটরের মূলনীতি পড়াব।</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <input type="text" placeholder="বার্তা লিখুন..." class="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                                <button class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderResources() {
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-7xl mx-auto">
+                                    <h2 class="section-title">শিক্ষা সামগ্রী ও রিসোর্স</h2>
+
+                                    <div class="mb-6">
+                                        <input type="text" placeholder="নোট, সার্কিট ডায়াগ্রাম অনুসন্ধান করুন..." class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                    </div>
+
+                                    <!-- Subjects Tabs -->
+                                    <div class="mb-6 flex gap-2 overflow-x-auto pb-2">
+                                        ${Object.values(this.subjects).map((subject, idx) => `
+                                            <button class="px-4 py-2 rounded-lg whitespace-nowrap font-semibold transition-all ${idx === 0 ? 'bg-blue-500 text-white' : 'bg-white dark:bg-dark-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700'}">${subject.code}</button>
+                                        `).join('')}
+                                    </div>
+
+                                    <div class="grid-3">
+                                        ${Array(9).fill(0).map((_, idx) => `
+                                            <div class="card p-6 hover:shadow-lg transition-shadow">
+                                                <div class="mb-4">
+                                                    <div class="w-full h-40 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center text-white text-4xl">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </div>
+                                                </div>
+                                                <h4 class="font-bold text-gray-800 dark:text-white mb-2">AC মেশিনের মৌলিক নীতি</h4>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Lecture Notes - Chapter ${idx + 1}</p>
+                                                <div class="flex gap-2">
+                                                    <button class="btn btn-primary flex-1"><i class="fas fa-download"></i> ডাউনলোড</button>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderTeachers() {
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-7xl mx-auto">
+                                    <h2 class="section-title">আমাদের শিক্ষক দল</h2>
+
+                                    <div class="grid-3">
+                                        ${this.teachers.map(teacher => `
+                                            <div class="card p-6 text-center hover:shadow-lg transition-shadow">
+                                                <div class="w-20 h-20 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center text-white text-3xl">
+                                                    <i class="fas fa-user-tie"></i>
+                                                </div>
+                                                <h3 class="font-bold text-lg text-gray-800 dark:text-white mb-1">${teacher.name}</h3>
+                                                <p class="text-sm text-blue-600 dark:text-blue-400 mb-3">${teacher.subject}</p>
+                                                <div class="space-y-2">
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">📱 ${teacher.phone}</p>
+                                                    <a href="https://wa.me/${teacher.whatsapp}" target="_blank" class="btn btn-primary w-full justify-center">
+                                                        <i class="fab fa-whatsapp"></i> WhatsApp যোগাযোগ
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderProfile() {
+                return `
+                    <div class="flex h-full">
+                        ${this.renderSidebar()}
+                        <div class="flex-1 flex flex-col overflow-hidden">
+                            ${this.renderNavbar()}
+                            <main class="flex-1 overflow-auto">
+                                <div class="p-8 max-w-4xl mx-auto">
+                                    <h2 class="section-title">আমার প্রোফাইল</h2>
+
+                                    <div class="grid-2 gap-6">
+                                        <!-- Profile Card -->
+                                        <div class="card p-8">
+                                            <div class="text-center mb-6">
+                                                <img src="${this.currentUser.profilePhoto}" alt="Profile" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-blue-500">
+                                                <h3 class="text-2xl font-bold text-gray-800 dark:text-white">${this.currentUser.name}</h3>
+                                                <p class="text-blue-600 dark:text-blue-400 mt-1">Roll: ${this.currentUser.roll}</p>
+                                            </div>
+                                            <button class="btn btn-primary w-full"><i class="fas fa-camera"></i> প্রোফাইল ছবি পরিবর্তন করুন</button>
+                                        </div>
+
+                                        <!-- Academic Info -->
+                                        <div class="card p-8">
+                                            <h4 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">একাডেমিক তথ্য</h4>
+                                            <div class="space-y-3">
+                                                <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">রেজিস্ট্রেশন নম্বর</p>
+                                                    <p class="font-semibold text-gray-800 dark:text-white">${this.currentUser.registration}</p>
+                                                </div>
+                                                <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">বিভাগ</p>
+                                                    <p class="font-semibold text-gray-800 dark:text-white">${this.currentUser.department}</p>
+                                                </div>
+                                                <div class="border-b border-gray-200 dark:border-gray-700 pb-3">
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">সেমিস্টার</p>
+                                                    <p class="font-semibold text-gray-800 dark:text-white">${this.currentUser.semester}তম</p>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-gray-600 dark:text-gray-400">ব্যাচ</p>
+                                                    <p class="font-semibold text-gray-800 dark:text-white">${this.currentUser.batch}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Edit Profile Form -->
+                                    <div class="card p-8 mt-6">
+                                        <h4 class="font-bold text-lg mb-6 text-gray-800 dark:text-white">ব্যক্তিগত তথ্য সম্পাদনা করুন</h4>
+                                        <div class="grid-2 gap-4">
+                                            <input type="text" value="${this.currentUser.name}" placeholder="নাম" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                            <input type="email" value="${this.currentUser.email}" placeholder="ইমেইল" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                            <input type="tel" value="${this.currentUser.phone}" placeholder="ফোন" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                            <input type="text" placeholder="ঠিকানা" class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark-800 text-gray-800 dark:text-white">
+                                        </div>
+                                        <button class="btn btn-primary mt-6"><i class="fas fa-save"></i> পরিবর্তনগুলি সংরক্ষণ করুন</button>
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div class="text-center py-8 text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                                        <p class="font-semibold">বিকাশিত করেছেন: Ridoy Hossen Arif</p>
+                                    </div>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderSidebar() {
+                return `
+                    <aside class="sidebar w-60 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white overflow-y-auto">
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-8">
+                                <div class="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center text-lg font-bold">ET</div>
+                                <div>
+                                    <p class="font-bold">ET Platform</p>
+                                    <p class="text-xs text-slate-400">Learning Hub</p>
+                                </div>
+                            </div>
+
+                            <nav class="space-y-2">
+                                <a data-nav="dashboard" class="nav-item ${this.currentPage === 'dashboard' ? 'active' : ''}">
+                                    <i class="fas fa-home w-5"></i>
+                                    <span>ড্যাশবোর্ড</span>
+                                </a>
+                                <a data-nav="subjects" class="nav-item ${this.currentPage === 'subjects' ? 'active' : ''}">
+                                    <i class="fas fa-book w-5"></i>
+                                    <span>সকল বিষয়</span>
+                                </a>
+                                <a data-nav="quiz" class="nav-item ${this.currentPage === 'quiz' ? 'active' : ''}">
+                                    <i class="fas fa-brain w-5"></i>
+                                    <span>কুইজ চ্যালেঞ্জ</span>
+                                </a>
+                                <a data-nav="chat" class="nav-item ${this.currentPage === 'chat' ? 'active' : ''}">
+                                    <i class="fas fa-comments w-5"></i>
+                                    <span>চ্যাট</span>
+                                </a>
+                                <a data-nav="resources" class="nav-item ${this.currentPage === 'resources' ? 'active' : ''}">
+                                    <i class="fas fa-download w-5"></i>
+                                    <span>সম্পদ</span>
+                                </a>
+                                <a data-nav="teachers" class="nav-item ${this.currentPage === 'teachers' ? 'active' : ''}">
+                                    <i class="fas fa-users w-5"></i>
+                                    <span>শিক্ষক দল</span>
+                                </a>
+                                <a data-nav="profile" class="nav-item ${this.currentPage === 'profile' ? 'active' : ''}">
+                                    <i class="fas fa-user w-5"></i>
+                                    <span>আমার প্রোফাইল</span>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div class="border-t border-slate-700 p-6">
+                            <div class="bg-slate-700/50 rounded-lg p-4 mb-4">
+                                <p class="text-xs text-slate-300 mb-2">আপনি লগইন করেছেন:</p>
+                                <p class="font-semibold text-sm">${this.currentUser.name}</p>
+                                <p class="text-xs text-slate-400">Roll: ${this.currentUser.roll}</p>
+                            </div>
+                            <button data-logout class="btn btn-primary w-full justify-center">
+                                <i class="fas fa-sign-out-alt"></i> লগআউট
+                            </button>
+                        </div>
+                    </aside>
+                `;
+            },
+
+            renderNavbar() {
+                return `
+                    <nav class="bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 flex items-center justify-between shadow-sm">
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800 dark:text-white">ET Platform</h1>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Smart Learning for Future Engineers</p>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <button data-toggle-dark class="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors">
+                                <i class="fas fa-${this.isDark ? 'sun' : 'moon'} text-lg text-gray-800 dark:text-white"></i>
+                            </button>
+                            <button class="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg transition-colors relative">
+                                <i class="fas fa-bell text-lg text-gray-800 dark:text-white"></i>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500">
+                                <img src="${this.currentUser.profilePhoto}" alt="Profile" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                    </nav>
+                `;
+            }
+        };
+
+        // Initialize app
+        app.init();
+    </script>
+</body>
+</html>
