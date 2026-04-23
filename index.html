@@ -504,11 +504,15 @@
                         const roll = document.querySelector('input[name="roll"]')?.value;
                         const registration = document.querySelector('input[name="registration"]')?.value;
                         
-                        if (roll === '747228' && registration === '15022711 56/2223') {
+                       F
+                       const semester = document.querySelector('select[name="semester"]')?.value;
+                        const shift = document.querySelector('select[name="shift"]')?.value;
+                        
+                        if (roll === '747228' && registration === '15022711 56/2223' && semester === '7' && shift === '1') {
                             localStorage.setItem('authToken', 'token_' + Date.now());
                             this.render();
                         } else {
-                            alert('Invalid credentials!');
+                            alert('Invalid credentials! Check Roll, Reg, Semester and Shift.');
                         }
                     }
 
